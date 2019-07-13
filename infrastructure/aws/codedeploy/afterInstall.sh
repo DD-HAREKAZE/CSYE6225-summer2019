@@ -39,7 +39,7 @@ pwd
 
 sudo npm install
 
-sudo npm i forever -g
+sudo npm install forever
 
 #sudo NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start --minUptime 1000 --spinSleepTime 1000 index.js 
 sudo NODE_ENV=prod NODE_DB_HOST=${rdsEndpoint} NODE_S3_BUCKET=${s3bucket} NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start --minUptime 1000 --spinSleepTime 1000 index.js 
