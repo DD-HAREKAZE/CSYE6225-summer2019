@@ -9,4 +9,4 @@ hooks:
   AfterInstall:
    - location: ./infrastructure/aws/codedeploy/afterInstall.sh
      timeout: 180
-runas: centos
+      runas: centos
