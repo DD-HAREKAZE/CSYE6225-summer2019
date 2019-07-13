@@ -21,6 +21,8 @@ aws configure set default.region us-east-1
 
 aws configure list
 
+whoami
+
 rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
 echo $rdsEndpoint
 
