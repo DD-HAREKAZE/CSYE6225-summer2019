@@ -23,8 +23,9 @@ aws configure list
 
 whoami
 
-rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
-echo $rdsEndpoint
+#rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
+aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text
+#echo $rdsEndpoint
 
 s3bucket = `aws s3api list-buckets --query "Buckets[].Name" --output text  | awk '{split($0,b," ");print b[1];print b[1]; print b[2]}' | grep '^csye6225'`
 echo $s3bucket
