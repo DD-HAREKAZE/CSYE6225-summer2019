@@ -7,13 +7,13 @@
        "AmiId":{
          "Type":"String"
        },
-	"subnet1":{
+       "subnet1":{
          "Type":"String"
        },
-	"subnet2":{
+	   "subnet2":{
          "Type":"String"
        },
-	"subnet3":{
+	   "subnet3":{
          "Type":"String"
        },
        "vpcId":{
@@ -28,8 +28,6 @@
        "webappbucket":{
          "Type":"String"
        }
-
-
     },
     "Resources": {
         "ec2instance": {
@@ -64,7 +62,7 @@
                             "Ref": "NameTag"
                         }
                     }
-		],
+		        ],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
@@ -72,8 +70,6 @@
                             [
                                 "#!/bin/bash -xe \n",
                                 "sudo yum update -y \n",
-                                "sudo yum install java-1.8.0-openjdk -y \n",
-                                "sudo yum install java-1.8.0-openjdk-devel -y \n",
                                 "sudo yum install ruby -y \n",
                                 "sudo yum install wget -y \n",
                                 "cd /home/centos \n",
@@ -81,26 +77,21 @@
                                 "chmod +x ./install \n",
                                 "sudo ./install auto \n",
                                 "sudo service codedeploy-agent start \n",
-                                "sudo echo DBCreationType=update >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export DBCreationType >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo username=csye6225master >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export username >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo password=csye6225password >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export password >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo profiletype=dev >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export profiletype >> /etc/profile.d/envvariable.sh \n",
+                                "sudo echo NODE_DB_USER=csye6225master > /var/.env \n",
+                                "sudo echo NODE_DB_PASS=csye6225password >> /var/.env \n",
+                                "sudo echo NODE_ENV=prod >> /var/.env \n",
                                 {
                                     "Fn::Join": [
                                         "",
                                         [
-                                            "echo awsRDS=jdbc:mysql://",
+                                            "sudo echo NODE_DB_HOST=",
                                             {
                                                 "Fn::GetAtt": [
                                                     "rdsinstance",
                                                     "Endpoint.Address"
                                                 ]
                                             },
-                                            ":3306/csye6225 >> /etc/profile.d/envvariable.sh \n"
+                                            ">> /var/.env \n"
                                         ]
                                     ]
                                 },
@@ -108,28 +99,20 @@
                                     "Fn::Join": [
                                         "",
                                         [
-                                            "sudo echo bucketName=",
+                                            "sudo echo NODE_S3_BUCKET=",
                                             {
                                                 "Ref": "webappbucket"
                                             },
-                                            ">> /etc/profile.d/envvariable.sh \n"
+                                            ">> /var/.env \n"
                                         ]
                                     ]
-                                },
-                                "sudo echo export awsRDS >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export bucketName >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo endpointUrl=https://s3.us-east-1.amazonaws.com/ >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export endpointUrl >> /etc/profile.d/envvariable.sh \n",
-                                "source /etc/profile.d/envvariable.sh \n",
-                                "mkdir /home/centos/webapp \n",
-                                "sudo chown centos:centos -R /home/centos/webapp \n",
-                                "iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j DNAT --to-destination :8080"
+                                }
                             ]
                         ]
                     }
                 }
-              }
-
+            },
+            "DependsOn" : "rdsinstance"
         },
         "dbsubnetgroup":{
             "Type":"AWS::RDS::DBSubnetGroup",
@@ -228,8 +211,5 @@
                 "StorageType" : "gp2"
             }
         }
-	
-
-
     }
 }
