@@ -160,7 +160,8 @@
                   "Ref":"AccessAttachmentToS3Bucket"
                },
                "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-               "arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess"
+               "arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess",
+               "arn:aws:iam::aws:policy/AmazonSNSFullAccess"
             ],
                 "AssumeRolePolicyDocument":{
                     "Version" : "2012-10-17",
@@ -226,6 +227,9 @@
                 }
             }
         },
+
+
+
         "codedeployapplication":{
             "Type":"AWS::CodeDeploy::Application",
             "Properties":{

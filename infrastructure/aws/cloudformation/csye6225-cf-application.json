@@ -25,6 +25,9 @@
        "NameTag":{
          "Type":"String"
        },
+       "codedeploybucket":{
+         "Type":"String"
+       },
        "webappbucket":{
          "Type":"String"
        }
@@ -190,6 +193,10 @@
                     "ReadCapacityUnits" : 10,
                     "WriteCapacityUnits" : 5
                 },
+                "TimeToLiveSpecification": {
+                    "AttributeName": "TTL",
+                    "Enabled": "TRUE"
+                },
                 "TableName": "csye6225"
             }
         },
@@ -211,5 +218,7 @@
                 "StorageType" : "gp2"
             }
         }
+        
+
     }
 }

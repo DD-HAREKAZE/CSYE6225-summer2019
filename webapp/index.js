@@ -17,6 +17,7 @@ const Config = require('./conf.js');
 const conf = new Config();
 var SDC = require('statsd-client'),
     sdc = new SDC({host: 'localhost'});
+const sns = new aws.SNS();
 
 	const log4js = require('log4js');
 	log4js.configure({
@@ -290,6 +291,44 @@ app.post('/user/register',(req,res)=>{
 					res.status(401).json({ message : 'No such user' });
 				}else{
 					if(results.length > 0){
+
+						console.log("api name last llink",req.url);
+						if(req.url == '/reset'){
+								sdc.increment('reset api triggered');
+								var abc = {};
+								var arn;
+								var msg;
+								aws.config.update({region:'us-east-1'});
+								var sns = new aws.SNS();
+
+								sns.listTopics(abc, (err, data)=>{
+										if(err){
+												console.log('err in sns listTopics',err);
+										}else{
+												arn = data.Topics[0].TopicArn;
+												msg = username
+
+												var params = {
+														Message : msg,
+														TopicArn: arn
+												};
+												console.log('params------',params);
+												sns.publish(params, (err, data)=>{
+														if(err){
+															console.log("err in sns publish",err);
+															logger.error('error in sns');
+															res.status(400).json({message:'error'});
+														}else{
+															console.log("sns publish success",data);
+															logger.info('sns triggered succesfully');
+															//res.json({msg: data});
+															res.status(201).json({message:'created'});
+														}
+												})
+										}
+								})
+						}
+
 						bcrypt.compare(password, results[0].password, function(err, resv) {
 							console.log("res---------",resv);    				
 							// res == true
@@ -361,7 +400,7 @@ app.post('/user/register',(req,res)=>{
 
 	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
-		sdc.increment('get all books');
+		sdc.increment('get all books',1);
 		logger.info("insdie get all books");
 
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){

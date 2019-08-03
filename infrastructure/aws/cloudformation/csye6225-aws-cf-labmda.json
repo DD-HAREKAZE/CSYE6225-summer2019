@@ -1,0 +1,75 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Parameters": {
+	"codedeploybucket": {
+	    "Type": "String"
+	    }
+	},
+	"Resources": {
+                    "LambdaExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [
+                                "lambda.amazonaws.com"
+                            ]
+                        },
+                        "Action": [
+                            "sts:AssumeRole"
+                        ]
+                    }]
+                },
+                "Path": "/",
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+                    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonRoute53FullAccess",
+                    "arn:aws:iam::aws:policy/AmazonSESFullAccess",
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaDynamoDBExecutionRole"
+                ],
+                "RoleName": "LambdaExecutionRole"
+            }
+        },
+		"MyLambdaFunction": {
+			"Type": "AWS::Lambda::Function",
+			"Properties": {
+				"FunctionName": "Sentemail",
+				"Handler": "index.handler",
+				"Role": {"Fn::GetAtt": ["LambdaExecutionRole","Arn"]},
+				"MemorySize": 512,
+				"Code": {
+					"S3Bucket": {
+						"Ref": "codedeploybucket"
+					},
+					"S3Key": "lambdasendmail.zip"
+				},
+				"Runtime": "nodejs8.10",
+				"Timeout": "25"
+			}
+		},
+
+		"LambdaInvokePermission": {
+			"Type": "AWS::Lambda::Permission",
+			"Properties": {
+				"FunctionName": "Sentemail",
+				"Action": "lambda:InvokeFunction",
+				"Principal": "sns.amazonaws.com",
+				"SourceArn": {
+					"Ref": "SNSTopic"
+				}
+			}
+		},
+
+		"SNSTopic": {
+			"Type": "AWS::SNS::Topic",
+			"Properties": {
+                            "Subscription" : [{"Endpoint":{"Fn::GetAtt":["MyLambdaFunction","Arn"]},"Protocol":"lambda"}],
+				"TopicName": "password_reset"
+			}
+		}
+	}
+}
