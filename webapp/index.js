@@ -551,10 +551,11 @@ app.post('/user/register',(req,res)=>{
 		
 		if(title.length > 0 && author.length > 0 && isbn.length > 0 && Number.isInteger(quantity) && quantity > 0){			
 			var imageid = null;
+			var idU = uuidv4();
 			if(url){
 				imageid = uuidv4();
 			}
-			connection.query('INSERT INTO book (`id`, `title`, `author`, `isbn`,`quantity`,`image`) VALUES (?,?,?,?,?,?)',[uuidv4(),title,author,isbn,quantity,imageid], function (error, results, fields) {
+			connection.query('INSERT INTO book (`id`, `title`, `author`, `isbn`,`quantity`,`image`) VALUES (?,?,?,?,?,?)',[idU,title,author,isbn,quantity,imageid], function (error, results, fields) {
 	  			if (error) {
 					logger.error(error); 
 					throw res.status(400).json({ message:"connection error",err:error });
@@ -570,31 +571,13 @@ app.post('/user/register',(req,res)=>{
 								}
 								
 								if(findRe.affectedRows > 0){
-									connection.query('SELECT * FROM book ORDER BY bid DESC LIMIT 1',function (erro, bookinfo) {
-										if(erro){
-											res.status(403).json({"message":erro});
-										}else{
-											res.status(200).json(bookinfo);
-										}
-									})
+									res.status(200).json({id:idU});
 								}else{
-									connection.query('SELECT * FROM book ORDER BY bid DESC LIMIT 1',function (erro, bookinfo) {
-										if(erro){
-											res.status(403).json({"message":erro});
-										}else{
-											res.status(200).json(bookinfo);
-										}
-									})
+									res.status(200).json({id:idU});
 								}
 							});
 						}else{
-							connection.query('SELECT * FROM book ORDER BY bid DESC LIMIT 1',function (erro, bookinfo) {
-								if(erro){
-									res.status(403).json({"message":erro});
-								}else{
-									res.status(200).json(bookinfo);
-								}
-							})
+							res.status(200).json({id:idU});
 						}
 				}else{
 					logger.error(error); 
