@@ -3,7 +3,7 @@
     "Description":"VPC with cloud Formation",
     "Parameters":{
         "VPCSubnetCidrBlock":{
-            "Description":"10.0.0.0/16 ---- total 65334 ips",
+            "Description":"10.0.0.0/16 65334 ips",
             "Type":"String",
             "Default":"10.0.0.0/16",
             "MinLength":"10",
@@ -27,6 +27,12 @@
             "AllowedValues":["a","b","c"]
 
         },
+        "AvailabilityZone4":{
+            "Type":"String",
+            "Default":"c",
+            "AllowedValues":["a","b","c","d"]
+
+        },
         "PublicSubnetCidrBlock1":{
             "Type":"String",
             "Default":"10.0.1.0/24",
@@ -47,6 +53,13 @@
         "PublicSubnetCidrBlock3":{
             "Type":"String",
             "Default":"10.0.3.0/24",
+            "MinLength":"10",
+            "MaxLength":"18"
+
+        },
+        "PublicSubnetCidrBlock4":{
+            "Type":"String",
+            "Default":"10.0.4.0/24",
             "MinLength":"10",
             "MaxLength":"18"
 
@@ -127,6 +140,25 @@
                     {
                         "Key": "Name",
                         "Value": {"Fn::Join":["",[{"Ref": "StackName"},"-public-az3"]]}
+                    }
+                ]
+            }
+        },
+
+        "publicsubnet4": {
+            "Type": "AWS::EC2::Subnet",
+            "DependsOn": "VPC",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "CidrBlock":{"Ref":"PublicSubnetCidrBlock4"},
+                "MapPublicIpOnLaunch" : "true",
+                "AvailabilityZone": {"Fn::Join":["",[{"Ref":"AWS::Region"},{"Ref":"AvailabilityZone4"}]]},
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {"Fn::Join":["",[{"Ref": "StackName"},"-public-az4"]]}
                     }
                 ]
             }
@@ -235,13 +267,31 @@
                     "Ref": "PublicRouteTable"
                 }
             }
+        },
+        "PublicSubnetRouteTableAssociation4": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "DependsOn": [
+                "publicsubnet2",
+                "PublicRouteTable",
+                "GatewayAttachment"
+            ],
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "publicsubnet4"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            }
         }
     },
+
     "Outputs": {
         "websubnet":{
             "Value":{"Ref":"publicsubnet1"}
-         
-         
+        },
+        "websubnet2":{
+            "Value":{"Ref":"publicsubnet4"},
         },
         "dbsubnet1Id":{
             "Value":{"Ref":"publicsubnet2"}

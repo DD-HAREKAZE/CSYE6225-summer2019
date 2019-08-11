@@ -25,6 +25,7 @@
                 },
                 "Path": "/",
                 "ManagedPolicyArns": [
+                    {"Ref":"lambadacloudwatch"},
                     "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
                     "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
                     "arn:aws:iam::aws:policy/AmazonRoute53FullAccess",
@@ -63,6 +64,26 @@
 				}
 			}
 		},
+
+
+        "lambadacloudwatch":{
+        "Type":"AWS::IAM::ManagedPolicy",
+	         "Properties":{
+	            "ManagedPolicyName":"LambdaLogsPolicy",
+              "PolicyDocument":{
+                  "Version":"2012-10-17",
+                  "Statement":[{
+                      "Action": [
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents"
+                        ],
+                        "Effect": "Allow",
+                        "Resource": "arn:aws:logs:*:*:*"
+                    }]
+	            }
+	         }
+	   },
 
 		"SNSTopic": {
 			"Type": "AWS::SNS::Topic",

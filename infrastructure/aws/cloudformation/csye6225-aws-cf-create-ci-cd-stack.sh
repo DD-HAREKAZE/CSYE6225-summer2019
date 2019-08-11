@@ -10,11 +10,13 @@ read accno
 echo "Username for circleci"
 read username
 
-echo "Enter Bucket Name for Code Deploy"
-read codedeploybucket
+echo "Please Enter Your Domain Name:"
+read domainName
 
-echo "Enter Bucket Name for sotring Images"
-read attachmentbucket
+codedeploybucket="code-deploy."$domainName
+echo "Your code deploy bucket is: "$codedeploybucket
+attachmentbucket=$domainName".csye6225.com"
+echo "Your bucket for images is: "$attachmentbucket
 
 dir_var=$(pwd)
 echo "Current Directory is '$dir_var'"

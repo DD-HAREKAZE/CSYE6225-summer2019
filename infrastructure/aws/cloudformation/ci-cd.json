@@ -226,40 +226,11 @@
                     }]
                 }
             }
-        },
-
-
-
-        "codedeployapplication":{
-            "Type":"AWS::CodeDeploy::Application",
-            "Properties":{
-                "ApplicationName":"csye6225-webapp"
-            }
-        },
-        "Deploymentgroup":{
-            "Type":"AWS::CodeDeploy::DeploymentGroup",
-            "Properties":{
-                "ApplicationName":{"Ref":"codedeployapplication"},
-                "DeploymentGroupName":"csye6225-webapp-deployment",
-                "DeploymentConfigName": "CodeDeployDefault.AllAtOnce",
-                "AutoRollbackConfiguration":{
-                    "Enabled":"True",
-                    "Events":["DEPLOYMENT_FAILURE"]
-                },
-                "ServiceRoleArn":{
-                    "Fn::GetAtt":["CodeDeployServiceRole","Arn"]
-                },
-                "DeploymentStyle":{
-                    "DeploymentType":"IN_PLACE",
-                    "DeploymentOption": "WITHOUT_TRAFFIC_CONTROL"
-                },
-                "Ec2TagFilters":[{
-                    "Key" : "Name",
-                    "Type":"KEY_AND_VALUE",
-                    "Value":{"Ref":"NameTag"}
-                }]
-            }
         }
+
+
+
+
 
     }
 }

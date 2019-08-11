@@ -194,7 +194,7 @@
                     "WriteCapacityUnits" : 5
                 },
                 "TimeToLiveSpecification": {
-                    "AttributeName": "TTL",
+                    "AttributeName": "ttl",
                     "Enabled": "TRUE"
                 },
                 "TableName": "csye6225"

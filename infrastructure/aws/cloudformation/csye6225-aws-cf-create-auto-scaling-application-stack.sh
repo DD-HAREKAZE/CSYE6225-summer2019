@@ -3,11 +3,15 @@ aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE||CREATE_IN_
 echo "Enter name of stack you want to create"
 read Stack_Name
 
-echo "Enter Bucket Name for Code Deploy"
-read codedeploybucket
+echo "Please Enter Your Domain Name:"
+read domainName
 
-echo "Enter Bucket Name for sotring Images"
-read ImageBucket
+codedeploybucket="code-deploy."$domainName
+echo "Your code deploy bucket is: "$codedeploybucket
+ImageBucket=$domainName".csye6225.com"
+echo "Your bucket for images is: "$ImageBucket
+domainName53=$domainName"."
+echo "Your domain name in route 53 is: "$domainName53
 
 echo "Displaying all keys!"
 aws ec2 describe-key-pairs
@@ -26,6 +30,7 @@ aws cloudformation describe-stacks --query 'Stacks[*].StackName'
 echo -e "\n"
 echo "Which stack you want to base your app on, input its name"
 read pStackName
+CodeDeployServiceRoleArn=$(aws iam list-roles --query 'Roles[?RoleName==`CodeDeployServiceRole`].[Arn]' --output text)
 
 vpcId=$(aws cloudformation describe-stack-resources --stack-name $pStackName --query 'StackResources[?ResourceType==`AWS::EC2::VPC`].[PhysicalResourceId]' --output text)
 echo "Your app is based on: Stack" $pStackName " and VPC " $vpcId
@@ -42,8 +47,12 @@ echo $subnet2
 subnet3=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az3" --query 'Subnets[*].{id:SubnetId}' --output text`
 echo "Subnet3:"
 echo $subnet3
+subnet4=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az4" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo "Subnet4:"
+echo $subnet4
 
-
+certificate=$(aws acm list-certificates --query 'CertificateSummaryList[?DomainName==`'$domainName'`].[CertificateArn]' --output text)
+echo $certificate
 
 getStackStatus() {
 	aws cloudformation describe-stacks \
@@ -57,7 +66,7 @@ waitForState() {
 
 	status=$(getStackStatus $1)
 
-	while [[ "$status" != "$2" ]]; do
+	while [ "$status" != "$2" ]; do
 
 		echo "Waiting for stack $1 to obtain status $2 - Current status: $status"
 		
@@ -83,14 +92,14 @@ exitWithErrorMessage() {
 
 dir_var=$(pwd)
 # echo "Current Directory is '$dir_var'"
-file_dir_var="file://$dir_var/csye6225-cf-application.json"
+file_dir_var="file://$dir_var/csye6225-cf-auto-scaling-application.json"
 
 
 aws cloudformation create-stack \
 	--stack-name $Stack_Name  \
 	--template-body $file_dir_var \
         --capabilities CAPABILITY_NAMED_IAM \
-	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId 		ParameterKey="subnet1",ParameterValue=$subnet1 ParameterKey="subnet2",ParameterValue=$subnet2 ParameterKey="subnet3",ParameterValue=$subnet3 ParameterKey="vpcId",ParameterValue=$vpcId ParameterKey="vpcname",ParameterValue=$vpcname ParameterKey="NameTag",ParameterValue=$Stack_Name ParameterKey="webappbucket",ParameterValue=$ImageBucket ParameterKey="codedeploybucket",ParameterValue=$codedeploybucket \
+	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId 		ParameterKey="subnet1",ParameterValue=$subnet1 ParameterKey="subnet2",ParameterValue=$subnet2 ParameterKey="subnet3",ParameterValue=$subnet3  ParameterKey="subnet4",ParameterValue=$subnet4 ParameterKey="vpcId",ParameterValue=$vpcId ParameterKey="vpcname",ParameterValue=$vpcname ParameterKey="NameTag",ParameterValue=$Stack_Name ParameterKey="webappbucket",ParameterValue=$ImageBucket ParameterKey="DomainName",ParameterValue=$domainName ParameterKey="domainName53",ParameterValue=$domainName53 ParameterKey="codedeploybucket",ParameterValue=$codedeploybucket ParameterKey="CertificateARN",ParameterValue=$certificate ParameterKey="CertificateARN2",ParameterValue=$certificate ParameterKey="CodeDeployServiceRoleArn",ParameterValue=$CodeDeployServiceRoleArn \
 	--disable-rollback
 
 

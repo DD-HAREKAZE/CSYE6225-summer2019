@@ -1,0 +1,2 @@
+# JMeter generated Authorization file
+https://csye6225-su19-tambep.me/user/register	${email}	${password}			BASIC
